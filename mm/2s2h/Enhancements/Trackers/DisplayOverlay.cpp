@@ -4,6 +4,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <ship/Context.h>
 #include <ship/window/Window.h>
+#include "2s2h/Network/Anchor/Anchor.h"
 
 extern "C" {
 #include "variables.h"
@@ -93,6 +94,8 @@ void DisplayOverlayWindow::InitElement() {
         Boss07* boss = (Boss07*)actor;
         if (boss->actionFunc == Boss07_Wrath_DeathCutscene && gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
             gSaveContext.save.shipSaveInfo.fileCompletedAt = GetUnixTimestamp();
+            Anchor::Instance->SendPacket_GameComplete();
+            Anchor::Instance->ReleaseWorldForCurrentTeam();
         }
     })
 }
