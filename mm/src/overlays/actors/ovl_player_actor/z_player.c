@@ -14068,8 +14068,9 @@ s32 func_808482E0(PlayState* play, Player* this) {
                             break;
                         case RITYPE_HEALTH:
                             if (play->tempRandoItem == RI_HEART_PIECE) {
-                                if (EQ_MAX_QUEST_HEART_PIECE_COUNT) {
+                                if (play->tempFilledHC) {
                                     var_v1 = NA_BGM_GET_HEART;
+                                    play->tempFilledHC = false;
                                 } else {
                                     var_v1 = NA_BGM_GET_SMALL_ITEM;
                                 }
