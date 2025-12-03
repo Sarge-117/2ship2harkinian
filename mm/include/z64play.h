@@ -126,6 +126,7 @@ typedef struct PlayState {
     /* 0x18E6C */ char unk_18E6C[0x3EC];
     /*         */ u8 tempRandoItem;
     /*         */ u8 tempRandoType;
+    /*         */ bool tempFilledHC;
 } PlayState; // size = 0x19258
 
 typedef enum PictoPhotoState {

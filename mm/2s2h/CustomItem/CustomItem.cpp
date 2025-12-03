@@ -176,8 +176,9 @@ void CustomItem00_Update(Actor* actor, PlayState* play) {
                 break;
             case RITYPE_HEALTH:
                 if (play->tempRandoItem == RI_HEART_PIECE) {
-                    if (EQ_MAX_QUEST_HEART_PIECE_COUNT) {
+                    if (play->tempFilledHC) {
                         Audio_PlayFanfare(NA_BGM_GET_HEART);
+                        play->tempFilledHC = false;
                     } else {
                         Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
                     }
