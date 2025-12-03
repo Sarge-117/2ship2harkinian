@@ -124,6 +124,8 @@ typedef struct PlayState {
     /* 0x18E64 */ void* unk_18E64;
     /* 0x18E68 */ void* unk_18E68; // framebuffer related to Lens of Truth
     /* 0x18E6C */ char unk_18E6C[0x3EC];
+    /*         */ u8 tempRandoItem;
+    /*         */ u8 tempRandoType;
 } PlayState; // size = 0x19258
 
 typedef enum PictoPhotoState {

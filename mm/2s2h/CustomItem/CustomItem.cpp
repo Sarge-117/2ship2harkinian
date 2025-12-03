@@ -146,7 +146,52 @@ void CustomItem00_Update(Actor* actor, PlayState* play) {
                 enItem00->actionFunc(enItem00, play);
                 CUSTOM_ITEM_FLAGS |= CustomItem::CALLED_ACTION;
             }
-            Audio_PlaySfx(NA_SE_SY_GET_ITEM);
+
+            switch (play->tempRandoType) { 
+            case RITYPE_JUNK:
+                    if (play->tempRandoItem >= RI_RUPEE_BLUE && play->tempRandoItem <= RI_RUPEE_SILVER) {
+                        Audio_PlaySfx(NA_SE_SY_GET_BOXITEM);
+                    } else {
+                        Audio_PlaySfx(NA_SE_SY_GET_ITEM);
+                    }
+                    break;
+            case RITYPE_MASK:
+                Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
+                break;
+            case RITYPE_MAJOR:
+            case RITYPE_LESSER:
+            case RITYPE_SMALL_KEY:
+            case RITYPE_BOSS_KEY:
+                if (play->tempRandoItem >= RI_SONG_ELEGY && play->tempRandoItem <= RI_SONG_TIME) {
+                    Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
+                } else {
+                    Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                }
+                break;
+            case RITYPE_STRAY_FAIRY:
+                Audio_PlaySfx(NA_SE_EV_CHIBI_FAIRY_SAVED); 
+                break;
+            case RITYPE_SKULLTULA_TOKEN:
+                Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
+                break;
+            case RITYPE_HEALTH:
+                if (play->tempRandoItem == RI_HEART_PIECE) {
+                    if (EQ_MAX_QUEST_HEART_PIECE_COUNT) {
+                        Audio_PlayFanfare(NA_BGM_GET_HEART);
+                    } else {
+                        Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
+                    }
+                }
+                if (play->tempRandoItem == RI_HEART_CONTAINER || play->tempRandoItem == RI_DOUBLE_DEFENSE) {
+                    Audio_PlayFanfare(NA_BGM_GET_HEART);
+                }
+                break;
+            default:
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                break;
+            }
+            play->tempRandoItem = 0;
+            play->tempRandoType = 0;
             // Set the unk152 to 15, this indicates the item has been picked up and will start the overhead animation
             enItem00->unk152 = 15;
             CUSTOM_ITEM_FLAGS |= CustomItem::STOP_BOBBING;

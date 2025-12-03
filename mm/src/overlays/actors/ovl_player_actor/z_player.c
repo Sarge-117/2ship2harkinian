@@ -14012,6 +14012,8 @@ s32 func_808482E0(PlayState* play, Player* this) {
         return true;
     }
 
+    bool skip = false;
+
     if (this->av1.actionVar1 == 0) {
         GetItemEntry* giEntry = &sGetItemTable[this->getItemId - 1];
 
@@ -14037,12 +14039,59 @@ s32 func_808482E0(PlayState* play, Player* this) {
                     ((this->getItemId >= GI_RUPEE_PURPLE) && (this->getItemId <= GI_RUPEE_HUGE))) {
                     var_v1 = NA_BGM_GET_SMALL_ITEM;
                 } else {
-                    var_v1 = NA_BGM_GET_ITEM;
+                    switch (play->tempRandoType) {
+                        case RITYPE_JUNK:
+                            if (play->tempRandoItem >= RI_RUPEE_BLUE && play->tempRandoItem <= RI_RUPEE_SILVER) {
+                                Audio_PlaySfx(NA_SE_SY_GET_BOXITEM);
+                            } else {
+                                Audio_PlaySfx(NA_SE_SY_GET_ITEM);
+                            }
+                            skip = true;
+                            break;
+                        case RITYPE_MASK:
+                            var_v1 = NA_BGM_GET_NEW_MASK;
+                            break;
+                        case RITYPE_MAJOR:
+                        case RITYPE_LESSER:
+                        case RITYPE_SMALL_KEY:
+                        case RITYPE_BOSS_KEY:
+                            if (play->tempRandoItem >= RI_SONG_ELEGY && play->tempRandoItem <= RI_SONG_TIME) {
+                                var_v1 = NA_BGM_LEARNED_NEW_SONG;
+                            } else {
+                                var_v1 = NA_BGM_GET_ITEM;
+                            }
+                            break;
+                        case RITYPE_STRAY_FAIRY:
+                            Audio_PlaySfx(NA_SE_EV_CHIBI_FAIRY_SAVED);
+                            skip = true;
+                            break;
+                        case RITYPE_SKULLTULA_TOKEN:
+                            var_v1 = NA_BGM_GET_SMALL_ITEM;
+                            break;
+                        case RITYPE_HEALTH:
+                            if (play->tempRandoItem == RI_HEART_PIECE) {
+                                if (EQ_MAX_QUEST_HEART_PIECE_COUNT) {
+                                    var_v1 = NA_BGM_GET_HEART;
+                                } else {
+                                    var_v1 = NA_BGM_GET_SMALL_ITEM;
+                                }
+                            }
+                            if (play->tempRandoItem == RI_HEART_CONTAINER || play->tempRandoItem == RI_DOUBLE_DEFENSE) {
+                                var_v1 = NA_BGM_GET_HEART;
+                            }
+                            break;
+                        default:
+                            var_v1 = NA_BGM_GET_ITEM;
+                            break;
+                    }
                 }
                 seqId = var_v1;
             }
-
-            Audio_PlayFanfare(seqId);
+            play->tempRandoItem = 0;
+            play->tempRandoType = 0;
+            if (!skip) {
+                Audio_PlayFanfare(seqId);
+            }
         }
     } else if (Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
         if (GameInteractor_Should(VB_PLAY_SONG_OF_TIME_CS, this->getItemId == GI_OCARINA_OF_TIME, this)) {
