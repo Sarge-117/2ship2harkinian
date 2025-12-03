@@ -95,6 +95,9 @@ void Rando::MiscBehavior::CheckQueue() {
                                 .suffix = message,
                             });
                         }
+                        gPlayState->tempRandoItem = randoItemId;
+                        gPlayState->tempRandoType = Rando::StaticData::Items[randoItemId].randoItemType;
+                        Rando::GiveItem(randoItemId);
                         randoSaveCheck.cycleObtained = true;
                         randoSaveCheck.obtained = true;
                         randoSaveCheck.eligible = false;
