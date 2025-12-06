@@ -4163,7 +4163,9 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
             RESET_HEART_PIECE_COUNT;
             gSaveContext.save.saveInfo.playerData.healthCapacity += 0x10;
             gSaveContext.save.saveInfo.playerData.health += 0x10;
-            play->tempFilledHC = true;
+            if (play != NULL) {
+                play->tempFilledHC = true;
+            }
         }
         return ITEM_NONE;
 
