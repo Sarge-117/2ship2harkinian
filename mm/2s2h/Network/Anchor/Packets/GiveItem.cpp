@@ -50,10 +50,31 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
         Notification::Emit({
             .itemIcon = Rando::StaticData::GetIconTexturePath(randoItemId),
             .prefix = client.name,
-            .message = "found your",
+            .message = "found",
             .suffix = suffix,
         });
     }
 
+
+
     Rando::GiveItem(randoItemId);
+
+    switch (gPlayState->tempRandoType) {
+        case RITYPE_MASK:
+            Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
+            break;
+        case RITYPE_MAJOR:
+        case RITYPE_BOSS_KEY:
+            if (gPlayState->tempRandoItem >= RI_SONG_ELEGY && gPlayState->tempRandoItem <= RI_SONG_TIME) {
+                Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
+            } else {
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
+            }
+            break;
+        
+        default:
+            break;
+    }
+    gPlayState->tempRandoItem = 0;
+    gPlayState->tempRandoType = 0;
 }
