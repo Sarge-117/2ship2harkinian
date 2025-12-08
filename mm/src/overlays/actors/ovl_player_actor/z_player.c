@@ -14057,7 +14057,6 @@ s32 func_808482E0(PlayState* play, Player* this) {
                                 var_v1 = NA_BGM_LEARNED_NEW_SONG;
                             } else {
                                 var_v1 = NA_BGM_GET_ITEM;
-                                Audio_PlaySfx(NA_SE_SY_ERROR);
                             }
                             break;
                         case RITYPE_STRAY_FAIRY:
@@ -14082,7 +14081,6 @@ s32 func_808482E0(PlayState* play, Player* this) {
                             break;
                         default:
                             var_v1 = NA_BGM_GET_ITEM;
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
                             break;
                     }
                 }

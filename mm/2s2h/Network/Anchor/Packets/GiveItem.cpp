@@ -59,28 +59,21 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
 
     Rando::GiveItem(randoItemId);
 
-    switch (gPlayState->tempRandoType) {
-        case RITYPE_MASK:
-            Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
-            break;
-        case RITYPE_MAJOR:
-        case RITYPE_BOSS_KEY:
-            if (gPlayState->tempRandoItem >= RI_SONG_ELEGY && gPlayState->tempRandoItem <= RI_SONG_TIME) {
-                Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
-            } else {
-                Audio_PlayFanfare(NA_BGM_GET_ITEM);
-                Notification::Emit({
-                    .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
-                    .prefix = "GiveItem",
-                    .message = "cpp",
-                    .suffix = "1",
-                });
-            }
-            break;
-        
-        default:
-            break;
+    if (gPlayState->tempRandoType == RITYPE_MASK) {
+        Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
     }
+    if (gPlayState->tempRandoItem >= RI_SONG_ELEGY && gPlayState->tempRandoItem <= RI_SONG_TIME) {
+        Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
+    }
+    if (gPlayState->tempRandoType == RITYPE_MAJOR || gPlayState->tempRandoType == RITYPE_BOSS_KEY) {
+        Notification::Emit({
+            .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+            .prefix = "GiveItem",
+            .message = "cpp",
+            .suffix = "1",
+        });
+    }
+
     gPlayState->tempRandoItem = 0;
     gPlayState->tempRandoType = 0;
 }
