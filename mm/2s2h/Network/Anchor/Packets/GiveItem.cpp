@@ -69,6 +69,12 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
                 Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
             } else {
                 Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                Notification::Emit({
+                    .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+                    .prefix = "GiveItem",
+                    .message = "cpp",
+                    .suffix = "1",
+                });
             }
             break;
         

@@ -166,6 +166,7 @@ void CustomItem00_Update(Actor* actor, PlayState* play) {
                     Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
                 } else {
                     Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                    Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
                 }
                 break;
             case RITYPE_STRAY_FAIRY:
@@ -189,6 +190,7 @@ void CustomItem00_Update(Actor* actor, PlayState* play) {
                 break;
             default:
                 Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
                 break;
             }
             play->tempRandoItem = 0;
