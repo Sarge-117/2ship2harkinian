@@ -59,20 +59,22 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
 
     Rando::GiveItem(randoItemId);
 
-    if (randoItemId >= RI_MASK_ALL_NIGHT && randoItemId <= RI_MASK_ZORA) {
-        Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
+    switch (Rando::StaticData::Items[randoItemId].randoItemType) { 
+        case RITYPE_MAJOR:
+        case RITYPE_BOSS_KEY:
+            if (randoItemId >= RI_SONG_ELEGY && randoItemId <= RI_SONG_TIME) {
+                Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
+            } else {
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
+            }
+            break;
+        case RITYPE_MASK:
+            Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
+            break;
+        default:
+            break;
     }
-    if (randoItemId >= RI_SONG_ELEGY && randoItemId <= RI_SONG_TIME) {
-        Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
-    }
-    if (gPlayState->tempRandoType == RITYPE_MAJOR || gPlayState->tempRandoType == RITYPE_BOSS_KEY) {
-        Notification::Emit({
-            .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
-            .prefix = "GiveItem",
-            .message = "cpp",
-            .suffix = "1",
-        });
-    }
+    
 
     gPlayState->tempRandoItem = 0;
     gPlayState->tempRandoType = 0;
