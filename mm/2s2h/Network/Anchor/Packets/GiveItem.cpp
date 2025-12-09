@@ -59,10 +59,10 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
 
     Rando::GiveItem(randoItemId);
 
-    if (gPlayState->tempRandoType == RITYPE_MASK) {
+    if (randoItemId >= RI_MASK_ALL_NIGHT && randoItemId <= RI_MASK_ZORA) {
         Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
     }
-    if (gPlayState->tempRandoItem >= RI_SONG_ELEGY && gPlayState->tempRandoItem <= RI_SONG_TIME) {
+    if (randoItemId >= RI_SONG_ELEGY && randoItemId <= RI_SONG_TIME) {
         Audio_PlayFanfare(NA_BGM_LEARNED_NEW_SONG);
     }
     if (gPlayState->tempRandoType == RITYPE_MAJOR || gPlayState->tempRandoType == RITYPE_BOSS_KEY) {
