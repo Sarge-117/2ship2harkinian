@@ -33,6 +33,7 @@ void func_800F4A10(PlayState* play) {
     s16 i;
 
     Rumble_StateReset();
+    CVarSetInteger("gToggled", 0);
 
     pauseCtx->switchPageTimer = 0;
     pauseCtx->mainState = PAUSE_MAIN_STATE_SWITCHING_PAGE;

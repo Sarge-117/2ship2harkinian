@@ -211,8 +211,12 @@ void KaleidoScope_DrawQuestStatus(PlayState* play) {
     // Draw Sword
     if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) != EQUIP_VALUE_SWORD_NONE) {
         gSPVertex(POLY_OPA_DISP++, &pauseCtx->questVtx[j], 4, 0);
-        KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, gItemIcons[(ITEM_SWORD_KOKIRI - 1) + GET_CUR_EQUIP_VALUE(0)],
-                                       32, 32, 0);
+        if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_GREAT_FAIRY) {
+            KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, gItemIcons[ITEM_SWORD_GREAT_FAIRY], 32, 32, 0);
+        } else {
+            KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx,
+                                           gItemIcons[(ITEM_SWORD_KOKIRI - 1) + GET_CUR_EQUIP_VALUE(0)], 32, 32, 0);
+        }
     }
 
     j += 4;
@@ -695,6 +699,7 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
             if (oldCursorPoint != pauseCtx->cursorPoint[PAUSE_QUEST]) {
                 pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
                 Audio_PlaySfx(NA_SE_SY_CURSOR);
+                CVarSetInteger("gToggled", 0);
             }
 
             // Update cursor item and slot
@@ -717,6 +722,25 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
                     // Shield
                     if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) != EQUIP_VALUE_SHIELD_NONE) {
                         cursorItem = (ITEM_SHIELD_HERO - EQUIP_TYPE_SHIELD) + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD);
+
+                        if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->cur.button, BTN_A) && !CVarGetInteger("gToggled")) {
+                            if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == EQUIP_VALUE_SHIELD_MIRROR) {
+                                SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
+                                Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                                Audio_PlaySfx(NA_SE_SY_DECIDE);
+                                CVarSetInteger("gDisablePauseTextBox", 1);
+                                CVarSetInteger("gToggleShield", 1);
+                            } else {
+                                if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == EQUIP_VALUE_SHIELD_HERO && CVarGetInteger("gToggleShield")) {
+                                    SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
+                                    Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                                    Audio_PlaySfx(NA_SE_SY_DECIDE);
+                                    CVarSetInteger("gDisablePauseTextBox", 1);
+                                }
+                            }
+                            CVarSetInteger("gToggled", 1);
+                        }
+
                     } else {
                         cursorItem = PAUSE_ITEM_NONE;
                     }
@@ -725,6 +749,35 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
                     if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) != EQUIP_VALUE_SWORD_NONE) {
                         cursorItem =
                             (ITEM_SWORD_KOKIRI - EQUIP_VALUE_SWORD_KOKIRI) + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
+
+                        if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->cur.button, BTN_A) && !CVarGetInteger("gToggled")) {
+
+                            if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_KOKIRI) {
+                                CVarSetInteger("gSwordRevertKokiri", 1);
+                            }
+                            if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_RAZOR) {
+                                CVarSetInteger("gSwordRevertRazor", 1);
+                            }
+                            if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_GILDED) {
+                                CVarSetInteger("gSwordRevertGilded", 1);
+                            }
+
+                            if (CVarGetInteger("gSwordRevertKokiri") && BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) != ITEM_SWORD_KOKIRI) {
+                                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+                                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI;
+                                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+                                Audio_PlaySfx(NA_SE_SY_DECIDE);
+                                CVarSetInteger("gSwordRevertKokiri", 0);
+                                CVarSetInteger("gDisablePauseTextBox", 1);
+                                CVarSetInteger("gToggled", 1);
+                            } else {
+                                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GREAT_FAIRY;
+                                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+                                Audio_PlaySfx(NA_SE_SY_DECIDE);
+                                CVarSetInteger("gDisablePauseTextBox", 1);
+                                CVarSetInteger("gToggled", 1);
+                            }
+                        }
                     } else {
                         cursorItem = PAUSE_ITEM_NONE;
                     }
@@ -857,19 +910,23 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
                                 pauseCtx->mainState = PAUSE_MAIN_STATE_BOMBERS_NOTEBOOK_OPEN;
                                 Audio_PlaySfx(NA_SE_SY_DECIDE);
                             } else {
-                                pauseCtx->itemDescriptionOn = true;
-                                if (pauseCtx->cursorYIndex[PAUSE_QUEST] < 2) {
-                                    if (pauseCtx->cursorItem[PAUSE_QUEST] < ITEM_REMAINS_ODOLWA) {
-                                        func_801514B0(play, 0x1737 + pauseCtx->cursorItem[PAUSE_QUEST], 1);
+                                if (!CVarGetInteger("gDisablePauseTextBox", 0)) {
+                                    pauseCtx->itemDescriptionOn = true;
+                                    if (pauseCtx->cursorYIndex[PAUSE_QUEST] < 2) {
+                                        if (pauseCtx->cursorItem[PAUSE_QUEST] < ITEM_REMAINS_ODOLWA) {
+                                            func_801514B0(play, 0x1737 + pauseCtx->cursorItem[PAUSE_QUEST], 1);
+                                        } else {
+                                            func_801514B0(play, 0x173B + pauseCtx->cursorItem[PAUSE_QUEST], 3);
+                                        }
                                     } else {
-                                        func_801514B0(play, 0x173B + pauseCtx->cursorItem[PAUSE_QUEST], 3);
+                                        if (pauseCtx->cursorItem[PAUSE_QUEST] < ITEM_REMAINS_ODOLWA) {
+                                            func_801514B0(play, 0x1737 + pauseCtx->cursorItem[PAUSE_QUEST], 1);
+                                        } else {
+                                            func_801514B0(play, 0x173B + pauseCtx->cursorItem[PAUSE_QUEST], 1);
+                                        }
                                     }
                                 } else {
-                                    if (pauseCtx->cursorItem[PAUSE_QUEST] < ITEM_REMAINS_ODOLWA) {
-                                        func_801514B0(play, 0x1737 + pauseCtx->cursorItem[PAUSE_QUEST], 1);
-                                    } else {
-                                        func_801514B0(play, 0x173B + pauseCtx->cursorItem[PAUSE_QUEST], 1);
-                                    }
+                                    CVarSetInteger("gDisablePauseTextBox", 0);
                                 }
                             }
                         }
